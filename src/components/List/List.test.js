@@ -1,0 +1,89 @@
+import React from "react";
+import { MockedProvider } from "@apollo/client/testing";
+import {
+  render,  
+  getAllByTestId,
+  wait,
+  getByText,  
+  queryByTestId,
+  getByRole,
+  waitForElementToBeRemoved
+} from "@testing-library/react";
+import List from "./List";
+import { COUNTRIES_QUERY } from "../../queries/countryQueries";
+
+const fakeS = [
+  {
+    request: {
+      query: COUNTRIES_QUERY
+    },
+    result: {
+      data: {
+        countries: () => {
+          return [];
+        }
+      }
+    }
+  }
+];
+const resolvers = {
+  Query: {
+    countries: () => {
+      return [];
+    },
+    error: new Error("Error")
+  }
+};
+
+describe("List", () => {
+  let containerWrapper;
+
+  beforeEach(() => {
+    const { container } = render(
+      <MockedProvider mocks={fakeS} resolvers={resolvers} addTypename={false}>
+        <List />
+      </MockedProvider>
+    );
+
+    containerWrapper = container;
+  });
+
+  it("should show a message of loading ", async () => {
+    expect(getByText(containerWrapper, "Loading")).toBeInTheDocument();
+    await waitForElementToBeRemoved(() =>
+      getByText(containerWrapper, "Loading")
+    );
+  });
+
+  it("should show a message of error", async () => {
+
+    const resolvers = {
+      Query: {
+        countries: new Error("Error")
+      },
+
+      error: new Error("")
+    };
+
+    const { container } = render(
+      <MockedProvider
+        resolvers={resolvers}
+        addTypename={false}
+      >
+        <List />
+      </MockedProvider>
+    );
+
+    expect(getByText(container, "Loading")).toBeInTheDocument();
+
+    await wait();
+
+    expect(getByRole(container, "alert")).toHaveTextContent("Error");
+  });
+
+  test(" render List Component", async () => {
+    await wait();
+
+    expect(queryByTestId(containerWrapper, "country-card")).toBeTruthy();
+  });
+});

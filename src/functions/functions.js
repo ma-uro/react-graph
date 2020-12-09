@@ -1,0 +1,39 @@
+import { selectedCountryVar, countriesVar, defaultCountriesVar} from '../cache'
+
+export default function useFunctions() {    
+    function handleSetDefaultCountries(countries) {
+        defaultCountriesVar(countries)
+    }
+
+    function handleSelectedCountry(country) {
+        
+        selectedCountryVar(country)
+    }
+
+    function handleSetCountries (countries) {    
+        countriesVar(countries)
+    }
+    
+    function handleGetCountries() {
+        return countriesVar();
+    }
+    function handleGetDefaultCountries() {
+        return defaultCountriesVar();
+    }
+
+    function handleGetSelectedCountry() {
+        return selectedCountryVar()
+    }
+    
+
+    function handleSearchCountries(search) {
+        if(search  === undefined || search === "") {
+            return handleGetDefaultCountries()
+        }
+
+        const countries = handleGetCountries().filter((country) => country.name.toLowerCase().indexOf(search) > -1) ;
+        return countries;
+    }
+
+  return { handleSetDefaultCountries, handleSelectedCountry, handleSearchCountries, handleGetSelectedCountry, handleSetCountries };
+}
